@@ -1,3 +1,4 @@
+import itertools
 
 class interpreter:
     def __init__(self, opcodes):
@@ -30,11 +31,10 @@ class interpreter:
 
     def solve_part2(self):
         self.reset()
-        for x in range(100):
-            for y in range(100):
-                if self._run_part2(x, y) == 19690720:
-                    return 100 * x + y
-                self.reset()
+        for x, y in itertools.product(range(100), range(100)):
+            if self._run_part2(x, y) == 19690720:
+                return 100 * x + y
+            self.reset()
 
         raise ArithmeticError("Failed to compute part2 result")
 
