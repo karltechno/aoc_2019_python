@@ -103,6 +103,9 @@ if __name__ == "__main__":
     with open("inputs/day9.txt") as f:
         opcodes = [int(x) for x in f.read().split(',')]
         interp = interpreter(opcodes)
-        interp.set_inputs([1])
-        interp.run()
-        print(interp.output)
+
+        interp.run_with_input(1)
+        print(f"part1: {interp.output}")
+        interp.reset()
+        interp.run_with_input(2)
+        print(f"part2: {interp.output}")
