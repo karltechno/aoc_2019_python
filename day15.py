@@ -108,14 +108,19 @@ class bfs_node:
 
 def solve_part1(interp):
     visited = set()
+    air_set = set()
+
     visited.add((0, 0))
+    air_set.add((0, 0))
+
+    result_node = None
 
     q = collections.deque()
     q.append(bfs_node(interp, (0, 0), 0))
 
     compass_to_tuple = { 1 : (0, 1), 2 : (0, -1), 3 : (-1, 0), 4 : (1, 0) }
 
-    while True:
+    while len(q) > 0:
         entry = q.popleft()
 
         for k, v in compass_to_tuple.items():
@@ -132,15 +137,48 @@ def solve_part1(interp):
             result = next(new_node.interp.run())
             if result == 0:
                 continue
-            if result == 1:
+            elif result == 1:
+                air_set.add(tuple(potential_pos))
                 q.append(new_node)
-            if result == 2:
-                return new_node.steps
+            elif result == 2:
+                assert result_node is None, "Something has gone wrong"
+                air_set.add(tuple(potential_pos))
+                result_node = new_node
+
+    return result_node.steps, result_node.pos, air_set
+            
+
+def solve_part2(start_pos, air_set):
+    q = collections.deque()
+
+    q.append(start_pos)
+    air_set.remove(tuple(start_pos))
+
+    mins = 0
+    dirs = [(0, 1), (0, -1), (-1, 0), (1, 0)]
+
+    while len(q) > 0:
+        cur_q, q = q, collections.deque()
+        any_popped = False
+
+        while len(cur_q) > 0:
+            p = cur_q.pop()
+            new_positions = set(tuple(np.add(p, d)) for d in dirs)
+            to_walk = air_set.intersection(new_positions)
+            any_popped = any_popped or len(to_walk) > 0 
+            q.extend(to_walk)
+            air_set.difference_update(new_positions)
+
+        mins += 1 if any_popped else 0
+
+    return mins
             
 
 if __name__ == "__main__":
     with open("inputs/day15.txt") as f:
         opcodes = [int(x) for x in f.read().split(',')]
         interp = interpreter(opcodes)
-        print(f"part1: {solve_part1(interp)}")
+        steps, oxy_pos, air_set = solve_part1(interp)
+        print(f"part1: {steps}")
+        print(f"part2: {solve_part2(oxy_pos, air_set)}")
 
