@@ -12,7 +12,7 @@ def do_fft_passes(digits, num_passes):
 
     mtx = np.array(mtx, dtype=int)
 
-    output = np.array(digits.copy(), dtype=int)
+    output = np.array(digits, dtype=int)
 
     for _ in range(num_passes):
         np.dot(mtx, output, out=output)
@@ -21,11 +21,23 @@ def do_fft_passes(digits, num_passes):
 
     return output
     
+def solve_part2(offset, digits):
+    buffer = list(itertools.islice(itertools.cycle(digits), 10000*len(digits)))
+    assert offset >= len(buffer) / 2, "assumes offset >= half len buffer to exploit upper triangular mtx of 1's" 
+    
+    for _ in range(100):
+        for i in range(len(buffer) - 2, offset - 1, -1):
+            buffer[i] = abs(buffer[i] + buffer[i + 1]) % 10
+
+    return int("".join(str(x) for x in buffer[offset:offset+8]))
 
 if __name__ == "__main__":
     with open("inputs/day16.txt") as f:
         digits = [int(x) for x in f.read()]
 
-    result = do_fft_passes(digits, 100)
+        result = do_fft_passes(digits, 100)
 
-    print("part1: " + "".join(str(x) for x in result[:8]))
+        offset = int("".join(str(x) for x in digits[:7]))
+
+        print(f"part1: {str().join(str(x) for x in result[:8])}")
+        print(f"part2: {solve_part2(offset, digits)}")
